@@ -24,10 +24,6 @@ def load_model():
     try:
         with open("Car_Prediction.sav", 'rb') as f:
             model = pickle.load(f)
-        if isinstance(model, DecisionTreeRegressor):
-            new_model = DecisionTreeRegressor()
-            new_model.__dict__.update(model.__dict__)
-            return new_model
         return model
     except Exception as e:
         st.error(f"Model loading failed: {e}")
@@ -35,8 +31,9 @@ def load_model():
 
 model = load_model()
 
-# -------------------- Mappings -------------------- #
+# -------------------- Encoders -------------------- #
 Manufacturer_mapping = {m: i for i, m in enumerate(sorted(data['Manufacturer'].unique()))}
+Model_mapping = {m: i for i, m in enumerate(sorted(data['Model'].unique()))}
 Category_mapping = {m: i for i, m in enumerate(sorted(data['Category'].unique()))}
 leather_mapping = {'yes': 1, 'no': 2}
 Fuel_mapping = {m: i for i, m in enumerate(sorted(data['Fuel type'].unique()))}
@@ -45,20 +42,14 @@ Drive_mapping = {m: i for i, m in enumerate(sorted(data['Drive wheels'].unique()
 Wheel_mapping = {m: i for i, m in enumerate(sorted(data['Wheel'].unique()))}
 color_mapping = {m: i for i, m in enumerate(sorted(data['Color'].unique()))}
 
-model_df = data[['Manufacturer', 'Model']].drop_duplicates()
-def get_model_mapping(manufacturer):
-    filtered = model_df[model_df['Manufacturer'] == manufacturer]['Model'].unique()
-    return {m: i for i, m in enumerate(sorted(filtered))}
-
-# -------------------- Navigation Sidebar -------------------- #
+# -------------------- Sidebar Navigation -------------------- #
 with st.sidebar:
     st.title("📌 Navigation")
     nav = st.radio("Select a Section:", ["📖 Overview", "📊 EDA", "🧮 Predict"])
     st.markdown("---")
-    st.markdown("### 🔗 Project on GitHub")
     st.markdown("[🔗 GitHub Repository](https://github.com/Abdelmoneim-Moustafa/Car_price_prediction)")
 
-# -------------------- Header Banner -------------------- #
+# -------------------- Banner -------------------- #
 st.markdown("""
 <div style='height:300px;background-image: url("https://wallpapercave.com/wp/wp3202836.jpg");
      background-size: cover; background-position: center; border-radius: 12px;'>
@@ -69,26 +60,25 @@ st.markdown("""
 if nav == "📖 Overview":
     st.title("🚗 Smart Car Price Predictor")
     st.markdown("""
-    Welcome to the **Smart Car Price Predictor** — an intelligent tool to help analyze car pricing trends, evaluate brand competitiveness, and estimate fair car values.
+    Welcome to the **Smart Car Price Predictor** — a powerful tool to analyze car pricing trends and estimate fair market values.
 
-    🚀 **Key Features:**
-    - In-depth market EDA dashboard
-    - Smart ML-powered price predictions
-    - Interactive, fast, and visually engaging
+    ### 🚀 Key Features:
+    - Market EDA visualizations
+    - ML-powered price prediction
+    - Interactive interface
 
-    🛠 **Tech Stack:** Streamlit · Pandas · Plotly · Scikit-learn · Python
+    ### 🛠 Built with: Streamlit · Pandas · Plotly · Scikit-learn
     """)
 
-    st.subheader("📈 Market Snapshot")
     col1, col2, col3 = st.columns(3)
     col1.metric("Total Listings", f"{len(data):,}")
     col2.metric("Avg. Price", f"${int(data['Price'].mean()):,}")
     col3.metric("Top Brand", data['Manufacturer'].value_counts().idxmax())
 
-    st.markdown("### 🔍 Data Preview")
-    st.dataframe(data.head(10), use_container_width=True)
+    st.markdown("### 🔍 Sample Data")
+    st.dataframe(data.head(), use_container_width=True)
 
-# -------------------- Exploratory Data Analysis -------------------- #
+# -------------------- EDA -------------------- #
 elif nav == "📊 EDA":
     st.title("📊 EDA Dashboard")
     st.markdown("### 🎯 Filter Options")
@@ -113,12 +103,10 @@ elif nav == "📊 EDA":
     tab1, tab2, tab3, tab4 = st.tabs(["📆 Price by Year", "🏆 Top Brands", "📊 Distributions", "📌 Correlations"])
 
     with tab1:
-        st.subheader("Average Price by Production Year")
         yearly = df_filtered.groupby('Prod. year')['Price'].mean().reset_index()
         st.plotly_chart(px.line(yearly, x='Prod. year', y='Price', markers=True), use_container_width=True)
 
     with tab2:
-        st.subheader("Top Manufacturers")
         top_counts = df_filtered['Manufacturer'].value_counts().nlargest(10).reset_index()
         top_counts.columns = ['Manufacturer', 'Count']
         st.plotly_chart(px.bar(top_counts, x='Manufacturer', y='Count', color='Manufacturer'), use_container_width=True)
@@ -129,34 +117,33 @@ elif nav == "📊 EDA":
 
     with tab3:
         col1, col2 = st.columns(2)
-        with col1:
-            st.plotly_chart(px.histogram(df_filtered, x='Price', nbins=50), use_container_width=True)
-            st.plotly_chart(px.box(df_filtered, x='Fuel type', y='Price', color='Fuel type'), use_container_width=True)
-        with col2:
-            st.plotly_chart(px.histogram(df_filtered, x='Mileage', nbins=50), use_container_width=True)
-            st.plotly_chart(px.box(df_filtered, x='Category', y='Price', color='Category'), use_container_width=True)
+        col1.plotly_chart(px.histogram(df_filtered, x='Price', nbins=50), use_container_width=True)
+        col1.plotly_chart(px.box(df_filtered, x='Fuel type', y='Price', color='Fuel type'), use_container_width=True)
+        col2.plotly_chart(px.histogram(df_filtered, x='Mileage', nbins=50), use_container_width=True)
+        col2.plotly_chart(px.box(df_filtered, x='Category', y='Price', color='Category'), use_container_width=True)
 
     with tab4:
-        st.subheader("🔬 Correlation Matrix (Zoomed)")
         corr = df_filtered[['Price', 'Mileage', 'Engine volume', 'Airbags', 'Cylinders', 'Age']].corr()
         fig_corr = px.imshow(corr, text_auto=True, aspect="auto", width=1200, height=800)
         st.plotly_chart(fig_corr, use_container_width=True)
 
-# -------------------- Price Prediction -------------------- #
+# -------------------- Prediction -------------------- #
 elif nav == "🧮 Predict":
     st.title("🧮 Car Price Estimator")
-    col1, col2 = st.columns(2)
 
+    col1, col2 = st.columns(2)
     with col1:
         brand = st.selectbox("Manufacturer", list(Manufacturer_mapping.keys()))
         Manufacturer = Manufacturer_mapping[brand]
-        model_options = get_model_mapping(brand)
-        model_label = st.selectbox("Model", list(model_options.keys()))
-        Model = model_options[model_label]
+
+        available_models = sorted(data[data['Manufacturer'] == brand]['Model'].unique())
+        model_label = st.selectbox("Model", available_models)
+        Model = Model_mapping[model_label]  # USE GLOBAL MAPPING HERE
+
         Category = Category_mapping[st.selectbox("Category", list(Category_mapping.keys()))]
         Leather = leather_mapping[st.selectbox("Leather Interior", list(leather_mapping.keys()))]
         Fuel = Fuel_mapping[st.selectbox("Fuel Type", list(Fuel_mapping.keys()))]
-        Mileage = st.number_input("Mileage", min_value=0)
+        Mileage = st.number_input("Mileage (km)", min_value=0)
 
     with col2:
         Gear = Gear_mapping[st.selectbox("Gearbox Type", list(Gear_mapping.keys()))]
@@ -178,14 +165,13 @@ elif nav == "🧮 Predict":
         })
 
         try:
-            prediction = model.predict(input_data)
-            with st.container():
-                st.markdown(f"""
-                <div style="padding: 20px; border-radius: 12px; background: #f0f9f9; border-left: 6px solid #00cc66;">
-                    <h3 style="color:#007a5a;">💰 Estimated Price:</h3>
-                    <h1 style="color:#007a5a;">${prediction[0]:,.2f}</h1>
-                </div>
-                """, unsafe_allow_html=True)
+            prediction = model.predict(input_data)[0]
+            st.markdown(f"""
+            <div style="padding: 20px; border-radius: 12px; background: #f0f9f9; border-left: 6px solid #00cc66;">
+                <h3 style="color:#007a5a;">💰 Estimated Price:</h3>
+                <h1 style="color:#007a5a;">${prediction:,.2f}</h1>
+            </div>
+            """, unsafe_allow_html=True)
             st.markdown("### 🔎 Input Summary")
             st.dataframe(input_data, use_container_width=True)
         except Exception as e:
