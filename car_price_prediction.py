@@ -11,7 +11,7 @@ st.set_page_config(page_title="Car Price Predictor", page_icon="🚘", layout="w
 # -------------------- Load Data & Model -------------------- #
 @st.cache_data
 def load_data():
-    df = pd.read_csv(r"C:\Users\abdel\Downloads\Final Project\car_price_prediction.csv")
+    pd.read_csv("car_price_prediction.csv")
     df['Mileage'] = df['Mileage'].str.replace(' km', '').str.replace(',', '').astype(int)
     df['Engine volume'] = df['Engine volume'].str.replace(' Turbo', '').astype(float)
     df['Age'] = datetime.now().year - df['Prod. year']
@@ -22,7 +22,7 @@ data = load_data()
 @st.cache_resource
 def load_model():
     try:
-        model = pickle.load(open(r'C:\Users\abdel\Downloads\Final Project\Car_Prediction.sav', 'rb'))
+        model = pickle.load(open('Car_Prediction.sav', 'rb'))
         if isinstance(model, DecisionTreeRegressor):
             new_model = DecisionTreeRegressor()
             new_model.__dict__.update(model.__dict__)
