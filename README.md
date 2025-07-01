@@ -22,20 +22,20 @@ Accuracy: **R² ≈ 0.82**
 car-price-predictor/
 │
 ├── app/                         # Application and config files
-│   └── full_car_price_app.py    # Streamlit web app
+│   └── car_price_app.py    # Streamlit web app
 │
 ├── models/                      # Saved model and preprocessor
-│   ├── best_model.pkl
+│   ├── model.sav
 │   └── preprocessor.pkl
 │
 ├── data/
 │   └── car_price_prediction.csv # Cleaned dataset
 │
-├── assets/                      # Images, banners, logos
-│   └── banner.png
+├── assets/                      # Images, logos
+│   └── photo.png
 │
 ├── notebooks/                   # EDA and training notebooks
-│   └── model_training.ipynb
+│   └── car-price-prediction.ipynb
 │
 ├── requirements.txt             # Project dependencies
 └── README.md                    # This file
@@ -54,8 +54,7 @@ car-price-predictor/
 
 ### 🔧 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/car-price-predictor.git
-cd car-price-predictor
+git clone https://github.com/Abdelmoneim-Moustafa/Car_price_prediction
 ```
 
 ### 📦 2. Create a virtual environment (optional but recommended)
@@ -71,7 +70,7 @@ pip install -r requirements.txt
 
 ### ▶️ 4. Run the Streamlit app
 ```bash
-streamlit run app/full_car_price_app.py
+streamlit run app/car_price_prediction_app.py
 ```
 
 ---
@@ -80,7 +79,7 @@ streamlit run app/full_car_price_app.py
 1. Push this repo to GitHub
 2. Go to [streamlit.io/cloud](https://streamlit.io/cloud)
 3. Connect your GitHub and select this repo
-4. Set `app/full_car_price_app.py` as the entry point
+4. Set `app/car_price_prediction_app.py` as the entry point
 
 Streamlit will automatically install from `requirements.txt` and launch your app!
 
