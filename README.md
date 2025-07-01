@@ -1,6 +1,6 @@
 # 🚗 Smart Car Price Prediction App
 
-A complete machine learning pipeline that predicts the market price of used cars based on real-world attributes. The project includes data cleaning, feature engineering, model training, SHAP explainability, and a deployed **Streamlit** web application.
+A complete machine learning pipeline that predicts the market price of used cars based on real-world attributes. The project includes data cleaning, feature engineering, model training, and a deployed **Streamlit** web application.
 
 ---
 
@@ -12,9 +12,9 @@ This app enables users to:
 - View prediction explanations using SHAP
 - Use a clean, navigable interface with **Streamlit**
 
-Model used: **Random Forest Regressor**  
+Best Model: **Random Forest Regressor**  
 Accuracy: **R² ≈ 0.82**
-
+But I Used Model: **DecisionTreeRegressor**
 ---
 
 ## 📂 Repository Structure
@@ -32,7 +32,7 @@ car-price-predictor/
 │   └── car_price_prediction.csv # Cleaned dataset
 │
 ├── assets/                      # Images, logos
-│   └── photo.png
+│   └── photo.gif
 │
 ├── notebooks/                   # EDA and training notebooks
 │   └── car-price-prediction.ipynb
@@ -77,7 +77,7 @@ streamlit run app/car_price_prediction_app.py
 
 ## 🌐 Deploy on Streamlit Cloud
 1. Push this repo to GitHub
-2. Go to [streamlit.io/cloud](https://streamlit.io/cloud)
+2. Go to (https://car-price-prediction-apps.streamlit.app/)
 3. Connect your GitHub and select this repo
 4. Set `app/car_price_prediction_app.py` as the entry point
 
