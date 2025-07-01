@@ -11,7 +11,7 @@ st.set_page_config(page_title="Car Price Predictor", page_icon="🚘", layout="w
 # -------------------- Load Data & Model -------------------- #
 @st.cache_data
 def load_data():
-    pd.read_csv("car_price_prediction.csv")
+    df = pd.read_csv("car_price_prediction.csv")
     df['Mileage'] = df['Mileage'].str.replace(' km', '').str.replace(',', '').astype(int)
     df['Engine volume'] = df['Engine volume'].str.replace(' Turbo', '').astype(float)
     df['Age'] = datetime.now().year - df['Prod. year']
@@ -22,7 +22,8 @@ data = load_data()
 @st.cache_resource
 def load_model():
     try:
-        model = pickle.load(open('Car_Prediction.sav', 'rb'))
+        with open("Car_Prediction.sav", 'rb') as f:
+            model = pickle.load(f)
         if isinstance(model, DecisionTreeRegressor):
             new_model = DecisionTreeRegressor()
             new_model.__dict__.update(model.__dict__)
@@ -138,7 +139,7 @@ elif nav == "📊 EDA":
     with tab4:
         st.subheader("🔬 Correlation Matrix (Zoomed)")
         corr = df_filtered[['Price', 'Mileage', 'Engine volume', 'Airbags', 'Cylinders', 'Age']].corr()
-        fig_corr = px.imshow(corr, text_auto=True, aspect="auto", width=1000, height=600)
+        fig_corr = px.imshow(corr, text_auto=True, aspect="auto", width=1200, height=800)
         st.plotly_chart(fig_corr, use_container_width=True)
 
 # -------------------- Price Prediction -------------------- #
@@ -192,6 +193,6 @@ elif nav == "🧮 Predict":
 
 # -------------------- Footer -------------------- #
 st.markdown("---")
-st.markdown("**GitHub**: Abdelmoneim-Moustafa/Car_price_prediction")
+st.markdown("### Project on GitHub")
 st.markdown("[https://github.com/Abdelmoneim-Moustafa/Car_price_prediction](https://github.com/Abdelmoneim-Moustafa/Car_price_prediction)")
 st.caption("Car Price Predictor · Author: Abdelmoneim Behairy")
